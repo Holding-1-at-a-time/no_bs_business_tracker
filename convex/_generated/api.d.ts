@@ -15,6 +15,7 @@ import type * as customers from "../customers.js";
 import type * as dailyLogs from "../dailyLogs.js";
 import type * as dashboard from "../dashboard.js";
 import type * as financials from "../financials.js";
+import type * as http from "../http.js";
 import type * as https from "../https.js";
 import type * as scripts from "../scripts.js";
 import type * as users from "../users.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   dailyLogs: typeof dailyLogs;
   dashboard: typeof dashboard;
   financials: typeof financials;
+  http: typeof http;
   https: typeof https;
   scripts: typeof scripts;
   users: typeof users;

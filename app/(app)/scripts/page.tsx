@@ -78,7 +78,7 @@ function ScriptsSection({
             setAddOpen(false);
             toast.success("Script added!");
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     };
 
@@ -129,7 +129,7 @@ function ScriptCard({ script }: { script: Doc<"scripts"> }) {
             setEditOpen(false);
             toast.success("Script updated!");
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     };
 
@@ -139,7 +139,7 @@ function ScriptCard({ script }: { script: Doc<"scripts"> }) {
                 await deleteScript({ scriptId: script._id });
                 toast.success("Script deleted.");
             } catch (error) {
-                toast.error((error as Error).message);
+                toast.error(error instanceof Error ? error.message : "Something went wrong");
             }
         }
     };
@@ -235,9 +235,8 @@ function HandlersSection({
         try {
             await addHandler(values);
             setAddOpen(false);
-            toast.success("Handler added!");
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     };
 
@@ -299,7 +298,7 @@ function HandlerRow({ handler }: { handler: Doc<"objectionHandlers"> }) {
             setEditOpen(false);
             toast.success("Handler updated!");
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     };
 
@@ -309,7 +308,7 @@ function HandlerRow({ handler }: { handler: Doc<"objectionHandlers"> }) {
                 await deleteHandler({ handlerId: handler._id });
                 toast.success("Handler deleted.");
             } catch (error) {
-                toast.error((error as Error).message);
+                toast.error(error instanceof Error ? error.message : "Something went wrong");
             }
         }
     };

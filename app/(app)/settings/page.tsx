@@ -66,10 +66,10 @@ function BusinessInfoForm({
     async function onSubmit(values: BusinessInfoFormValues) {
         try {
             await updateInfo(values);
-            toast.success("Business info updated!");
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
+    }        }
     }
 
     return (
@@ -132,7 +132,7 @@ function GoalsCard({ goals }: { goals: Doc<"userGoals">[] }) {
         try {
             await toggleGoal({ goalId, isAchieved: !isAchieved });
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     };
 
@@ -177,7 +177,7 @@ function ToolsCard({ tools }: { tools: Doc<"userTools">[] }) {
         try {
             await toggleTool({ toolId, isSetUp: !isSetUp });
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     };
 
@@ -230,7 +230,7 @@ function ManageSubscriptionCard() {
             window.location.href = portalUrl;
         } catch (err) {
             console.error("Failed to create subscription portal:", err);
-            toast.error((err as Error).message);
+            toast.error(err instanceof Error ? err.message : "Something went wrong");
         }
     };
 
