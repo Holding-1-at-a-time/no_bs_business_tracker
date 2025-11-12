@@ -4,7 +4,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 import { format, subDays, startOfWeek } from "date-fns";
 import { Doc, Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
@@ -49,15 +49,19 @@ function GoalsCard({
         }
     };
 
+    // Memoize sorted goals to avoid re-sorting on every render
+    const sortedGoals = useMemo(
+        () => goals.sort((a, b) => (a.isAchieved ? 1 : -1)),
+        [goals]
+    );
+
     return (
         <Card className={className}>
             <CardHeader>
                 <CardTitle>Goals & Milestones Tracker</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                {goals
-                    .sort((a, b) => (a.isAchieved ? 1 : -1)) // Show unachieved first
-                    .map((goal) => (
+                {sortedGoals.map((goal) => (
                         <div
                             key={goal._id}
                             className="flex items-center space-x-3"
@@ -164,10 +168,14 @@ function MonthlyGrowthChart({
 function DashboardPage() {
     const { user } = useUser();
 
-    // Define the date range for "This Week" (Mon-Today)
-    const today = new Date();
-    const startDate = format(startOfWeek(today, { weekStartsOn: 1 }), "yyyy-MM-dd");
-    const endDate = format(today, "yyyy-MM-dd");
+    // Memoize date calculations to avoid recomputing on every render
+    const { startDate, endDate } = useMemo(() => {
+        const today = new Date();
+        return {
+            startDate: format(startOfWeek(today, { weekStartsOn: 1 }), "yyyy-MM-dd"),
+            endDate: format(today, "yyyy-MM-dd"),
+        };
+    }, []); // Empty deps - recalculate only on mount
 
     const dashboardData = useQuery(api.dashboard.getDashboardData, {
         startDate,

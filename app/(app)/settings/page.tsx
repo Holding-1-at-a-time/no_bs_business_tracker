@@ -66,10 +66,10 @@ function BusinessInfoForm({
     async function onSubmit(values: BusinessInfoFormValues) {
         try {
             await updateInfo(values);
+            toast.success("Business info updated!");
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
-    }        }
     }
 
     return (

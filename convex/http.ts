@@ -16,17 +16,13 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
 
     switch (event.type) {
         case "user.created":
-            // FIX: Added email and call to seedInitialData
+            // Create user and seed initial data atomically to prevent race conditions
             const email = event.data.email_addresses[0]?.email_address;
-            const userId = await ctx.runMutation(internal.users.createUser, {
+            await ctx.runMutation(internal.users.createUserWithData, {
                 clerkId: event.data.id,
                 name: `${event.data.first_name ?? ""} ${event.data.last_name ?? ""}`,
                 email: email ?? "No Email",
             });
-
-            // --- CRITICAL ONBOARDING FIX ---
-            // Seed the initial data for the new user
-            await ctx.runMutation(internal.business.seedInitialData, { userId });
             break;
 
         case "user.updated":

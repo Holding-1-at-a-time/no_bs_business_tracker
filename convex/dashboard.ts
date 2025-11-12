@@ -70,25 +70,27 @@ export const getDashboardData = query({
             )
             .collect();
 
-        const logIds = new Set(logs.map((log) => log._id));
+        // Efficiently count approaches and jobs using compound indexes
+        let totalApproaches = 0;
+        let totalJobs = 0;
 
-        const allApproaches = await ctx.db
-            .query("outreachEntries")
-            .withIndex("by_userId", (q) => q.eq("userId", userId))
-            .collect();
+        for (const log of logs) {
+            const approaches = await ctx.db
+                .query("outreachEntries")
+                .withIndex("by_userId_logId", (q) =>
+                    q.eq("userId", userId).eq("dailyLogId", log._id)
+                )
+                .collect();
+            totalApproaches += approaches.length;
 
-        const totalApproaches = allApproaches.filter((approach) =>
-            logIds.has(approach.dailyLogId),
-        ).length;
-
-        const allJobs = await ctx.db
-            .query("completedJobs")
-            .withIndex("by_userId", (q) => q.eq("userId", userId))
-            .collect();
-
-        const totalJobs = allJobs.filter((job) =>
-            logIds.has(job.dailyLogId),
-        ).length;
+            const jobs = await ctx.db
+                .query("completedJobs")
+                .withIndex("by_userId_logId", (q) =>
+                    q.eq("userId", userId).eq("dailyLogId", log._id)
+                )
+                .collect();
+            totalJobs += jobs.length;
+        }
 
         const conversionRate =
             totalApproaches > 0 ? (totalJobs / totalApproaches) * 100 : 0;

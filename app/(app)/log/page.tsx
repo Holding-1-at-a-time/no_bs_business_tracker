@@ -32,13 +32,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
     Select,
@@ -49,6 +42,7 @@ import {
 } from "@/components/ui/select";
 import { PlusCircle, Edit } from "lucide-react";
 import { format } from "date-fns";
+import { AddFormDialog, EditFormDialog } from "@/components/form-dialog";
 
 const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-US", {
@@ -101,111 +95,7 @@ const jobSchema = z.object({
 });
 type JobFormValues = z.infer<typeof jobSchema>;
 
-// --- Reusable Form Dialog ---
-function AddItemDialog<T extends z.ZodType<any, any>>({
-    schema,
-    mutation,
-    defaultValues,
-    triggerButton,
-    dialogTitle,
-    formFields,
-    toastMessage,
-}: {
-    schema: T;
-    mutation: any; // useMutation hook
-    defaultValues: z.infer<T>;
-    triggerButton: React.ReactNode;
-    dialogTitle: string;
-    formFields: (form: ReturnType<typeof useForm<z.infer<T>>>) => React.ReactNode;
-    toastMessage: string;
-}) {
-    const [open, setOpen] = useState(false);
-    const form = useForm<z.infer<T>>({
-        resolver: zodResolver(schema),
-        defaultValues,
-    });
-
-        async function onSubmit(values: z.infer<T>) {
-            try {
-                await mutation(values);
-                toast.success(toastMessage);
-                form.reset(defaultValues);
-                setOpen(false);
-            } catch (error) {
-                toast.error(error instanceof Error ? error.message : "Something went wrong");
-            }
-        }
-    
-        return (
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>{triggerButton}</DialogTrigger>
-                <DialogContent>
-                    <DialogHeader><DialogTitle>{dialogTitle}</DialogTitle></DialogHeader>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                            {formFields(form)}
-                            <Button type="submit" disabled={form.formState.isSubmitting}>
-                                {form.formState.isSubmitting ? "Saving..." : "Save"}
-                            </Button>
-                        </form>
-                    </Form>
-                </DialogContent>
-            </Dialog>
-        );
-    }
-    
-    function EditItemDialog<T extends z.ZodType<any, any>>({
-        schema,
-        mutation,
-        item,
-        triggerButton,
-        dialogTitle,
-        formFields,
-        toastMessage,
-    }: {
-        schema: T;
-        mutation: any; // useMutation hook
-        item: any;
-        triggerButton: React.ReactNode;
-        dialogTitle: string;
-        formFields: (form: ReturnType<typeof useForm<z.infer<T>>>) => React.ReactNode;
-        toastMessage: string;
-    }) {
-        const [open, setOpen] = useState(false);
-        const form = useForm<z.infer<T>>({
-            resolver: zodResolver(schema),
-            defaultValues: item,
-        });
-    
-        async function onSubmit(values: z.infer<T>) {
-            try {
-                await mutation({ id: item._id, ...values });
-                toast.success(toastMessage);
-                setOpen(false);
-            } catch (error) {
-                toast.error(error instanceof Error ? error.message : "Something went wrong");
-            }
-        }
-    
-        return (
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>{triggerButton}</DialogTrigger>
-                <DialogContent>
-                    <DialogHeader><DialogTitle>{dialogTitle}</DialogTitle></DialogHeader>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                            {formFields(form)}
-                            <Button type="submit" disabled={form.formState.isSubmitting}>
-                                {form.formState.isSubmitting ? "Saving..." : "Save"}
-                            </Button>
-                        </form>
-                    </Form>
-                </DialogContent>
-            </Dialog>
-        );
-    }
-    
-    // --- Page Component ---
+// --- Page Component ---
     function DailyLogPage() {
         const router = useRouter();
         const searchParams = useSearchParams();
@@ -292,18 +182,18 @@ function AddItemDialog<T extends z.ZodType<any, any>>({
                         <CardHeader>
                             <div className="flex justify-between items-center">
                                 <CardTitle>Customer Outreach Tracker</CardTitle>
-                                <AddItemDialog
+                                <AddFormDialog
                                     schema={outreachSchema}
-                                    mutation={addOutreach}
+                                    onSubmit={async (values) => await addOutreach(values)}
                                     defaultValues={{
                                         dailyLogId: log._id,
                                         time: format(new Date(), "HH:mm"),
                                         method: "", person: "", response: "", followUpNeeded: false,
                                     }}
-                                    dialogTitle="Add Outreach Entry"
-                                    toastMessage="Outreach added!"
+                                    title="Add Outreach Entry"
+                                    successMessage="Outreach added!"
                                     triggerButton={<Button variant="outline" size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add</Button>}
-                                    formFields={(form: any) => (
+                                    formFields={(form) => (
                                         <>
                                             <FormField control={form.control} name="time" render={({ field }) => (<FormItem><FormLabel>Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                             <FormField control={form.control} name="method" render={({ field }) => (<FormItem><FormLabel>Method</FormLabel><FormControl><Input placeholder="e.g., Phone, In-person" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -324,14 +214,14 @@ function AddItemDialog<T extends z.ZodType<any, any>>({
                                         <TableRow key={o._id}>
                                             <TableCell>{o.time}</TableCell><TableCell>{o.method}</TableCell><TableCell>{o.person}</TableCell><TableCell>{o.response}</TableCell><TableCell>{o.followUpNeeded ? "Yes" : "No"}</TableCell>
                                             <TableCell>
-                                                <EditItemDialog
+                                                <EditFormDialog
                                                     schema={outreachSchema}
-                                                    mutation={updateOutreach}
-                                                    item={o}
-                                                    dialogTitle="Edit Outreach Entry"
-                                                    toastMessage="Outreach updated!"
+                                                    onSubmit={async (values) => await updateOutreach({ id: o._id, ...values })}
+                                                    defaultValues={o}
+                                                    title="Edit Outreach Entry"
+                                                    successMessage="Outreach updated!"
                                                     triggerButton={<Button variant="outline" size="sm"><Edit className="h-4 w-4" /></Button>}
-                                                    formFields={(form: any) => (
+                                                    formFields={(form) => (
                                                         <>
                                                             <FormField control={form.control} name="time" render={({ field }) => (<FormItem><FormLabel>Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                                             <FormField control={form.control} name="method" render={({ field }) => (<FormItem><FormLabel>Method</FormLabel><FormControl><Input placeholder="e.g., Phone, In-person" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -354,17 +244,17 @@ function AddItemDialog<T extends z.ZodType<any, any>>({
                         <CardHeader>
                             <div className="flex justify-between items-center">
                                 <CardTitle>Jobs Completed Today</CardTitle>
-                                <AddItemDialog
+                                <AddFormDialog
                                     schema={jobSchema}
-                                    mutation={addCompletedJob}
+                                    onSubmit={async (values) => await addCompletedJob(values)}
                                     defaultValues={{
                                         dailyLogId: log._id,
                                         customer: "", service: "", amountCharged: 0, isPaid: false, referralAsked: false, notes: "",
                                     }}
-                                    dialogTitle="Add Completed Job"
-                                    toastMessage="Job added!"
+                                    title="Add Completed Job"
+                                    successMessage="Job added!"
                                     triggerButton={<Button variant="outline" size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add</Button>}
-                                    formFields={(form: any) => (
+                                    formFields={(form) => (
                                         <>
                                             <FormField control={form.control} name="customer" render={({ field }) => (<FormItem><FormLabel>Customer</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                             <FormField control={form.control} name="service" render={({ field }) => (<FormItem><FormLabel>Service</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -385,14 +275,14 @@ function AddItemDialog<T extends z.ZodType<any, any>>({
                                         <TableRow key={j._id}>
                                             <TableCell>{j.customer}</TableCell><TableCell>{j.service}</TableCell><TableCell>{formatCurrency(j.amountCharged)}</TableCell><TableCell>{j.isPaid ? "Yes" : "No"}</TableCell><TableCell>{j.referralAsked ? "Yes" : "No"}</TableCell>
                                             <TableCell>
-                                                <EditItemDialog
+                                                <EditFormDialog
                                                     schema={jobSchema}
-                                                    mutation={updateCompletedJob}
-                                                    item={j}
-                                                    dialogTitle="Edit Job"
-                                                    toastMessage="Job updated!"
+                                                    onSubmit={async (values) => await updateCompletedJob({ id: j._id, ...values })}
+                                                    defaultValues={j}
+                                                    title="Edit Job"
+                                                    successMessage="Job updated!"
                                                     triggerButton={<Button variant="outline" size="sm"><Edit className="h-4 w-4" /></Button>}
-                                                    formFields={(form: any) => (
+                                                    formFields={(form) => (
                                                         <>
                                                             <FormField control={form.control} name="customer" render={({ field }) => (<FormItem><FormLabel>Customer</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                                             <FormField control={form.control} name="service" render={({ field }) => (<FormItem><FormLabel>Service</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -496,6 +386,13 @@ function AddItemDialog<T extends z.ZodType<any, any>>({
                 </div>
             );
         };
+
+    // Memoize selected date object to prevent Calendar rerenders
+    const selectedDateObj = useMemo(
+        () => new Date(selectedDate + "T12:00:00"),
+        [selectedDate]
+    );
+
     return (
         <div className="p-4 md:p-8 grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2">{renderContent()}</div>
@@ -504,7 +401,7 @@ function AddItemDialog<T extends z.ZodType<any, any>>({
                     <CardContent className="p-0">
                         <Calendar
                             mode="single"
-                            selected={new Date(selectedDate + "T12:00:00")}
+                            selected={selectedDateObj}
                             onSelect={onDateSelect}
                             className="p-0"
                         />

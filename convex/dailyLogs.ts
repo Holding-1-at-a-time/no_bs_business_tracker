@@ -286,17 +286,16 @@ export const updateCompletedJob = mutation({
         }
 
         // If the payment status changes, we need to update the daily revenue
-        if (job.isPaid !== args.isPaid) {
-            const log = await ctx.db.get(job.dailyLogId);
-            if (log) {
+        const log = await ctx.db.get(job.dailyLogId);
+        if (log) {
+            if (job.isPaid !== args.isPaid) {
+                // Payment status changed
                 const revenueToday = args.isPaid
                     ? log.revenueToday + args.amountCharged
                     : log.revenueToday - job.amountCharged;
                 await ctx.db.patch(log._id, { revenueToday });
-            }
-        } else if (job.amountCharged !== args.amountCharged && args.isPaid) {
-            const log = await ctx.db.get(job.dailyLogId);
-            if (log) {
+            } else if (job.amountCharged !== args.amountCharged && args.isPaid) {
+                // Amount changed but still paid - adjust the difference
                 const revenueToday = log.revenueToday - job.amountCharged + args.amountCharged;
                 await ctx.db.patch(log._id, { revenueToday });
             }
