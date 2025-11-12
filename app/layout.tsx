@@ -1,9 +1,10 @@
 // file: app/layout.tsx
 import { ClerkProvider } from "@clerk/nextjs";
-import { ConvexClientProvider } from "../components/providers/ConvexClientProvider";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-import "./globals.css"; // Import the new global styles
+import ConvexClientProvider from "@/components/ui/providers/ConvexClientProvider";
+ 
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

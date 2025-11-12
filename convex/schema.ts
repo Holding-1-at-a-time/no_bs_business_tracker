@@ -87,7 +87,8 @@ export default defineSchema({
         followUpNeeded: v.boolean(),
     })
         .index("by_dailyLogId", ["dailyLogId"])
-        .index("by_userId_logId", ["userId", "dailyLogId"]), // FIX: New index
+        .index("by_userId_logId", ["userId", "dailyLogId"]) // FIX: New index
+        .index("by_userId", ["userId"]),
 
     completedJobs: defineTable({
         dailyLogId: v.id("dailyLogs"),
@@ -100,7 +101,8 @@ export default defineSchema({
         notes: v.optional(v.string()),
     })
         .index("by_dailyLogId", ["dailyLogId"])
-        .index("by_userId_logId", ["userId", "dailyLogId"]), // FIX: New index
+        .index("by_userId_logId", ["userId", "dailyLogId"]) // FIX: New index
+        .index("by_userId", ["userId"]),
 
     // --- PIPELINE TABLES ---
     leads: defineTable({
@@ -110,7 +112,12 @@ export default defineSchema({
         serviceInterest: v.string(),
         source: v.string(),
         dateAdded: v.string(), // YYYY-MM-DD
-        status: v.string(),
+        status: v.union(
+            v.literal("New"),
+            v.literal("Contacted"),
+            v.literal("Interested"),
+            v.literal("Lost")
+        ),
         nextAction: v.string(),
     }).index("by_userId", ["userId"]),
 

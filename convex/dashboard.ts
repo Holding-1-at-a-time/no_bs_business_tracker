@@ -1,7 +1,7 @@
 // file: convex/dashboard.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { Doc }_generated / dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { format, parseISO } from "date-fns";
 
 /**
@@ -59,7 +59,7 @@ export const getDashboardData = query({
         const profitMargin =
             totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
 
-        // 3. Get Action counts for the date range (2N+1 queries)
+        // 3. Get Action counts for the date range (Optimized)
         const logs = await ctx.db
             .query("dailyLogs")
             .withIndex("by_userId_date", (q) =>
@@ -70,22 +70,25 @@ export const getDashboardData = query({
             )
             .collect();
 
-        let totalApproaches = 0;
-        let totalJobs = 0;
+        const logIds = new Set(logs.map((log) => log._id));
 
-        for (const log of logs) {
-            const approaches = await ctx.db
-                .query("outreachEntries")
-                .withIndex("by_dailyLogId", (q) => q.eq("dailyLogId", log._id))
-                .collect();
-            totalApproaches += approaches.length;
+        const allApproaches = await ctx.db
+            .query("outreachEntries")
+            .withIndex("by_userId", (q) => q.eq("userId", userId))
+            .collect();
 
-            const jobs = await ctx.db
-                .query("completedJobs")
-                .withIndex("by_dailyLogId", (q) => q.eq("dailyLogId", log._id))
-                .collect();
-            totalJobs += jobs.length;
-        }
+        const totalApproaches = allApproaches.filter((approach) =>
+            logIds.has(approach.dailyLogId),
+        ).length;
+
+        const allJobs = await ctx.db
+            .query("completedJobs")
+            .withIndex("by_userId", (q) => q.eq("userId", userId))
+            .collect();
+
+        const totalJobs = allJobs.filter((job) =>
+            logIds.has(job.dailyLogId),
+        ).length;
 
         const conversionRate =
             totalApproaches > 0 ? (totalJobs / totalApproaches) * 100 : 0;
@@ -173,7 +176,7 @@ export const toggleGoal = mutation({
 
         await ctx.db.patch(args.goalId, {
             isAchieved: args.isAchieved,
-            achievedDate: args.isAchieved ? Date.now() : undefined,
+            achievedDate: args.isAchieved ? BigInt(Date.now()) : undefined,
         });
     },
 });

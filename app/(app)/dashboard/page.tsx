@@ -6,7 +6,8 @@ import { api } from "../../../convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
 import { Suspense } from "react";
 import { format, subDays, startOfWeek } from "date-fns";
-import { Doc }../../../ convex / _generated / dataModel";
+import { Doc, Id } from "../../../convex/_generated/dataModel";
+import { toast } from "sonner";
 
 import {
     BarChart,
@@ -44,8 +45,7 @@ function GoalsCard({
         try {
             await toggleGoal({ goalId, isAchieved: !isAchieved });
         } catch (error) {
-            console.error("Failed to toggle goal:", error);
-            // TODO: Add error toast
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     };
 

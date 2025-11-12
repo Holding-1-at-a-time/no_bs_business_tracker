@@ -7,7 +7,7 @@ import { Suspense, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Doc, Id } from "../../../convex/_generated/dataModel";";
+import { Doc, Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,13 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Trash } from "lucide-react";
+
+const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+    }).format(amount);
 
 const getToday = () => new Date().toISOString().split("T")[0];
 
@@ -76,6 +82,7 @@ type AddCustomerFormValues = z.infer<typeof addCustomerSchema>;
 function LeadsTab({ leads }: { leads: Doc<"leads">[] }) {
     const [open, setOpen] = useState(false);
     const addLead = useMutation(api.customers.addLead);
+    const deleteLead = useMutation(api.customers.deleteLead);
 
     const form = useForm<AddLeadFormValues>({
         resolver: zodResolver(addLeadSchema),
@@ -96,9 +103,18 @@ function LeadsTab({ leads }: { leads: Doc<"leads">[] }) {
             setOpen(false);
             toast.success("Lead added!");
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     }
+
+    const handleDelete = async (id: Id<"leads">) => {
+        try {
+            await deleteLead({ id });
+            toast.success("Lead deleted!");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
+        }
+    };
 
     return (
         <TabsContent value="leads" className="mt-4">
@@ -126,13 +142,18 @@ function LeadsTab({ leads }: { leads: Doc<"leads">[] }) {
                         </Dialog>
                     </div>
                     <Table>
-                        <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Contact</TableHead><TableHead>Service</TableHead><TableHead>Status</TableHead><TableHead>Next Action</TableHead><TableHead>Added</TableHead></TableRow></TableHeader>
+                        <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Contact</TableHead><TableHead>Service</TableHead><TableHead>Status</TableHead><TableHead>Next Action</TableHead><TableHead>Added</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
                         <TableBody>
                             {leads.map((lead) => (
                                 <TableRow key={lead._id}>
                                     <TableCell>{lead.name}</TableCell><TableCell>{lead.contact}</TableCell><TableCell>{lead.serviceInterest}</TableCell>
                                     <TableCell><span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">{lead.status}</span></TableCell>
                                     <TableCell>{lead.nextAction}</TableCell><TableCell>{lead.dateAdded}</TableCell>
+                                    <TableCell>
+                                        <Button variant="destructive" size="sm" onClick={() => handleDelete(lead._id)}>
+                                            <Trash className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -148,6 +169,7 @@ function LeadsTab({ leads }: { leads: Doc<"leads">[] }) {
 function FollowUpsTab({ followUps }: { followUps: Doc<"followUps">[] }) {
     const [open, setOpen] = useState(false);
     const addFollowUp = useMutation(api.customers.addFollowUp);
+    const deleteFollowUp = useMutation(api.customers.deleteFollowUp);
 
     const form = useForm<AddFollowUpFormValues>({
         resolver: zodResolver(addFollowUpSchema),
@@ -161,9 +183,18 @@ function FollowUpsTab({ followUps }: { followUps: Doc<"followUps">[] }) {
             setOpen(false);
             toast.success("Follow-up added!");
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     }
+
+    const handleDelete = async (id: Id<"followUps">) => {
+        try {
+            await deleteFollowUp({ id });
+            toast.success("Follow-up deleted!");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
+        }
+    };
 
     return (
         <TabsContent value="followups" className="mt-4">
@@ -190,11 +221,16 @@ function FollowUpsTab({ followUps }: { followUps: Doc<"followUps">[] }) {
                         </Dialog>
                     </div>
                     <Table>
-                        <TableHeader><TableRow><TableHead>Customer</TableHead><TableHead>Last Contact</TableHead><TableHead>Reason</TableHead><TableHead>Follow-Up On</TableHead><TableHead>Notes</TableHead></TableRow></TableHeader>
+                        <TableHeader><TableRow><TableHead>Customer</TableHead><TableHead>Last Contact</TableHead><TableHead>Reason</TableHead><TableHead>Follow-Up On</TableHead><TableHead>Notes</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
                         <TableBody>
                             {followUps.map((fu) => (
                                 <TableRow key={fu._id}>
                                     <TableCell>{fu.customerName}</TableCell><TableCell>{fu.lastContact}</TableCell><TableCell>{fu.reason}</TableCell><TableCell>{fu.followUpDate}</TableCell><TableCell>{fu.notes}</TableCell>
+                                    <TableCell>
+                                        <Button variant="destructive" size="sm" onClick={() => handleDelete(fu._id)}>
+                                            <Trash className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -210,6 +246,7 @@ function FollowUpsTab({ followUps }: { followUps: Doc<"followUps">[] }) {
 function CustomersTab({ customers }: { customers: Doc<"customers">[] }) {
     const [open, setOpen] = useState(false);
     const addCustomer = useMutation(api.customers.addCustomer);
+    const deleteCustomer = useMutation(api.customers.deleteCustomer);
 
     const form = useForm<AddCustomerFormValues>({
         resolver: zodResolver(addCustomerSchema),
@@ -223,9 +260,18 @@ function CustomersTab({ customers }: { customers: Doc<"customers">[] }) {
             setOpen(false);
             toast.success("Customer added!");
         } catch (error) {
-            toast.error((error as Error).message);
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     }
+
+    const handleDelete = async (id: Id<"customers">) => {
+        try {
+            await deleteCustomer({ id });
+            toast.success("Customer deleted!");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
+        }
+    };
 
     return (
         <TabsContent value="customers" className="mt-4">
@@ -250,11 +296,16 @@ function CustomersTab({ customers }: { customers: Doc<"customers">[] }) {
                         </Dialog>
                     </div>
                     <Table>
-                        <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Contact</TableHead><TableHead>Total Jobs</TableHead><TableHead>Total Revenue</TableHead><TableHead>Last Job</TableHead></TableRow></TableHeader>
+                        <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Contact</TableHead><TableHead>Total Jobs</TableHead><TableHead>Total Revenue</TableHead><TableHead>Last Job</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
                         <TableBody>
                             {customers.map((c) => (
                                 <TableRow key={c._id}>
                                     <TableCell>{c.name}</TableCell><TableCell>{c.contact}</TableCell><TableCell>{c.totalJobs}</TableCell><TableCell>{formatCurrency(c.totalRevenue)}</TableCell><TableCell>{c.lastJobDate}</TableCell>
+                                    <TableCell>
+                                        <Button variant="destructive" size="sm" onClick={() => handleDelete(c._id)}>
+                                            <Trash className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

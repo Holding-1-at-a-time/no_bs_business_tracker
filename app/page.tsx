@@ -1,7 +1,6 @@
 // file: app/page.tsx
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
-import { LandingHeader } from "@/components/layout/LandingHeader";
 import { SignUpButton } from "@clerk/nextjs";
 import {
   CheckCircle,
@@ -9,6 +8,7 @@ import {
   DollarSign,
   Users,
 } from "lucide-react";
+import { LandingHeader } from "@/components/ui/layout/LandingHeader";
 
 /**
  * Advanced SEO Metadata

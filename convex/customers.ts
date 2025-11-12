@@ -1,7 +1,7 @@
 // file: convex/customers.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 /**
  * Securely get a doc, checking for user ownership.
@@ -115,3 +115,54 @@ export const addCustomer = mutation({
 
 // TODO: Add Update/Delete mutations for all three tables,
 // using the `getDocOrThrow` helper for auth checks.
+
+export const deleteLead = mutation({
+    args: { id: v.id("leads") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const lead = await ctx.db.get(args.id);
+        if (!lead) throw new Error("Lead not found");
+
+        if (lead.userId !== identity.subject) {
+            throw new Error("Unauthorized");
+        }
+
+        await ctx.db.delete(args.id);
+    },
+});
+
+export const deleteFollowUp = mutation({
+    args: { id: v.id("followUps") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const followUp = await ctx.db.get(args.id);
+        if (!followUp) throw new Error("Follow up not found");
+
+        if (followUp.userId !== identity.subject) {
+            throw new Error("Unauthorized");
+        }
+
+        await ctx.db.delete(args.id);
+    },
+});
+
+export const deleteCustomer = mutation({
+    args: { id: v.id("customers") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const customer = await ctx.db.get(args.id);
+        if (!customer) throw new Error("Customer not found");
+
+        if (customer.userId !== identity.subject) {
+            throw new Error("Unauthorized");
+        }
+
+        await ctx.db.delete(args.id);
+    },
+});

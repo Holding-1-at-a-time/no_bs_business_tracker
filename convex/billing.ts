@@ -1,6 +1,6 @@
 // file: convex/billing.ts
 import { v } from "convex/values";
-import { internalMutation, query }instantiated / server";
+import { internalMutation, query } from "./_generated/server";
 import { Doc } from "./_generated/dataModel";
 
 /**
@@ -60,7 +60,7 @@ export const updateSubscription = internalMutation({
         await ctx.db.patch(user._id, {
             plan: planName,
             clerkSubscriptionId: clerkSubscriptionId,
-            subscriptionEndsAt: endsAt,
+            subscriptionEndsAt: BigInt(endsAt),
         });
     },
 });

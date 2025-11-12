@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { toast } from "sonner";
-import { Doc, Id } from "../../../convex/_generated/dataModel";";
+import { Doc, Id } from "../../../convex/_generated/dataModel";
 
 import { Button } from "@/components/ui/button";
 import {

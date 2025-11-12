@@ -9,6 +9,14 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as billing from "../billing.js";
+import type * as business from "../business.js";
+import type * as customers from "../customers.js";
+import type * as dailyLogs from "../dailyLogs.js";
+import type * as dashboard from "../dashboard.js";
+import type * as financials from "../financials.js";
+import type * as https from "../https.js";
+import type * as scripts from "../scripts.js";
 import type * as users from "../users.js";
 
 import type {
@@ -19,6 +27,14 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  billing: typeof billing;
+  business: typeof business;
+  customers: typeof customers;
+  dailyLogs: typeof dailyLogs;
+  dashboard: typeof dashboard;
+  financials: typeof financials;
+  https: typeof https;
+  scripts: typeof scripts;
   users: typeof users;
 }>;
 

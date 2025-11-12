@@ -1,7 +1,7 @@
 // file: convex/dailyLogs.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 /**
  * Get all log data for a specific date for the authenticated user.
@@ -211,5 +211,99 @@ export const updateExpenses = mutation({
         await ctx.db.patch(log._id, {
             expensesToday: args.expenses,
         });
+    },
+});
+
+export const updateOutreach = mutation({
+    args: {
+        id: v.id("outreachEntries"),
+        time: v.string(),
+        method: v.string(),
+        person: v.string(),
+        response: v.union(
+            v.literal("Y"), v.literal("N"), v.literal("M"), v.literal(""),
+        ),
+        followUpNeeded: v.boolean(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const outreach = await ctx.db.get(args.id);
+        if (!outreach) throw new Error("Outreach entry not found");
+
+        if (outreach.userId !== identity.subject) {
+            throw new Error("Unauthorized");
+        }
+
+        const { id, ...rest } = args;
+        await ctx.db.patch(id, rest);
+    },
+});
+
+export const updateAppointment = mutation({
+    args: {
+        id: v.id("appointments"),
+        time: v.string(),
+        customer: v.string(),
+        service: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const appointment = await ctx.db.get(args.id);
+        if (!appointment) throw new Error("Appointment not found");
+
+        if (appointment.userId !== identity.subject) {
+            throw new Error("Unauthorized");
+        }
+
+        const { id, ...rest } = args;
+        await ctx.db.patch(id, rest);
+    },
+});
+
+export const updateCompletedJob = mutation({
+    args: {
+        id: v.id("completedJobs"),
+        customer: v.string(),
+        service: v.string(),
+        amountCharged: v.number(),
+        isPaid: v.boolean(),
+        referralAsked: v.boolean(),
+        notes: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const job = await ctx.db.get(args.id);
+        if (!job) throw new Error("Job not found");
+
+        if (job.userId !== identity.subject) {
+            throw new Error("Unauthorized");
+        }
+
+        // If the payment status changes, we need to update the daily revenue
+        if (job.isPaid !== args.isPaid) {
+            const log = await ctx.db.get(job.dailyLogId);
+            if (log) {
+                const revenueToday = args.isPaid
+                    ? log.revenueToday + args.amountCharged
+                    : log.revenueToday - job.amountCharged;
+                await ctx.db.patch(log._id, { revenueToday });
+            }
+        } else if (job.amountCharged !== args.amountCharged && args.isPaid) {
+            const log = await ctx.db.get(job.dailyLogId);
+            if (log) {
+                const revenueToday = log.revenueToday - job.amountCharged + args.amountCharged;
+                await ctx.db.patch(log._id, { revenueToday });
+            }
+        }
+
+
+        const { id, ...rest } = args;
+        await ctx.db.patch(id, rest);
     },
 });

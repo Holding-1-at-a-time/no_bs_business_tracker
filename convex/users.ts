@@ -1,7 +1,7 @@
 // file: convex/users.ts
 import { v } from "convex/values";
 import { internalMutation, internalQuery } from "./_generated/server";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 /**
  * Get a user by their Clerk ID. (Internal)
@@ -30,7 +30,8 @@ export const createUser = internalMutation({
             clerkId: args.clerkId,
             name: args.name,
             email: args.email,
-            plan: "free", // Default to free plan
+            plan: "free",
+            tokenIdentifier: ""
         });
     },
 });
