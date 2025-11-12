@@ -1,7 +1,7 @@
 // file: convex/business.ts
 import { v } from "convex/values";
 import { internalMutation, query, mutation } from "./_generated/server";
-import { Doc, Id }_generated / dataModel";
+import { Doc } from "./_generated/dataModel";
 
 const GOAL_CHECKLIST = [
     "First customer acquired",

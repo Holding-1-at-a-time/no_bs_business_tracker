@@ -1,7 +1,7 @@
 // file: convex/financials.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { Doc }_generated / dataModel";
+import { Doc } from "./_generated/dataModel";
 
 // This is a "Free Plan" limit
 const FREE_PLAN_ENTRY_LIMIT = 50;

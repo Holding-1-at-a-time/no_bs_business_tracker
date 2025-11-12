@@ -1,7 +1,7 @@
 // file: convex/billing.ts
 import { v } from "convex/values";
 import { internalMutation, query }instantiated / server";
-import { Doc, Id }_generated / dataModel";
+import { Doc } from "./_generated/dataModel";
 
 /**
  * Get the current user's subscription status.

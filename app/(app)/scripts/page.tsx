@@ -7,7 +7,7 @@ import { Suspense, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Doc, Id }../../../ convex / _generated / dataModel";
+import { Doc, Id } from "../../../convex/_generated/dataModel";";
 import { toast } from "sonner"; // Assuming you have sonner for toasts
 
 import { Button } from "@/components/ui/button";

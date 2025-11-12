@@ -1,7 +1,7 @@
 // file: convex/dailyLogs.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { Doc, Id }_generated / dataModel";
+import { Doc } from "./_generated/dataModel";
 
 /**
  * Get all log data for a specific date for the authenticated user.

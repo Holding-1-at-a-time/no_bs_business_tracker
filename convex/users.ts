@@ -1,7 +1,7 @@
 // file: convex/users.ts
 import { v } from "convex/values";
 import { internalMutation, internalQuery } from "./_generated/server";
-import { Doc, Id }_generated / dataModel";
+import { Doc } from "./_generated/dataModel";
 
 /**
  * Get a user by their Clerk ID. (Internal)

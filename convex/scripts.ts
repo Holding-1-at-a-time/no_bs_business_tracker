@@ -1,7 +1,7 @@
 // file: convex/scripts.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { Doc, Id }_generated / dataModel";
+import { Doc } from "./_generated/dataModel";
 
 const FREE_PLAN_SCRIPT_LIMIT = 3;
 const FREE_PLAN_HANDLER_LIMIT = 5;
