@@ -1,65 +1,173 @@
-import Image from "next/image";
+// file: app/page.tsx
+import { Metadata } from "next";
+import { Button } from "@/components/ui/button";
+import { LandingHeader } from "@/components/layout/LandingHeader";
+import { SignUpButton } from "@clerk/nextjs";
+import {
+  CheckCircle,
+  TrendingUp,
+  DollarSign,
+  Users,
+} from "lucide-react";
 
-export default function Home() {
+/**
+ * Advanced SEO Metadata
+ */
+export const metadata: Metadata = {
+  title: "No-BS Business Tracker | Stop Guessing, Start Tracking",
+  description:
+    "The No-BS Business Tracker replaces expensive CRMs for solo entrepreneurs. Track daily actions, pipeline, and financials with no fluff.",
+  keywords: [
+    "solo entrepreneur",
+    "business tracker",
+    "crm",
+    "no-bs",
+    "financial tracker",
+    "pipeline management",
+  ],
+  openGraph: {
+    title: "No-BS Business Tracker | Stop Guessing, Start Tracking",
+    description:
+      "The No-BS Business Tracker replaces expensive CRMs for solo entrepreneurs.",
+    url: "https://your-domain.com", // TODO: Change this
+    siteName: "No-BS Business Tracker",
+    images: [
+      {
+        url: "https://your-domain.com/og-image.png", // TODO: Create and add this
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "No-BS Business Tracker | Stop Guessing, Start Tracking",
+    description:
+      "The No-BS Business Tracker replaces expensive CRMs for solo entrepreneurs.",
+    images: ["https://your-domain.com/og-image.png"], // TODO: Create and add this
+  },
+};
+
+/**
+ * Main Landing Page (React Server Component)
+ */
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-col min-h-screen">
+      <LandingHeader />
+
+      <main className="flex-1">
+        {/* --- Hero Section --- */}
+        <section className="w-full py-20 md:py-32 lg:py-40 bg-white">
+          <div className="container mx-auto px-4 md:px-6 text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900">
+              Stop Guessing.
+              <br />
+              <span className="text-primary">Start Tracking.</span>
+            </h1>
+            <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-secondary">
+              The No-BS Business Tracker is your complete operating system.
+              Replace expensive, confusing CRMs and track what actually matters.
+            </p>
+            <div className="mt-8 flex justify-center gap-4">
+              <SignUpButton mode="modal">
+                <Button size="lg" className="bg-primary hover:bg-primary/90">
+                  Get Started for Free
+                </Button>
+              </SignUpButton>
+            </div>
+            <p className="mt-4 text-sm text-secondary">
+              No gurus, just grit. And the tools to back it up.
+            </p>
+          </div>
+        </section>
+
+        {/* --- Features Section --- */}
+        <section className="w-full py-20 md:py-32 bg-muted">
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900">
+              An OS for the One-Man-Band
+            </h2>
+            <p className="mt-4 max-w-xl mx-auto text-center text-secondary">
+              We track the three pillars of your business: Action, Pipeline, and
+              Money.
+            </p>
+            <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              <FeatureCard
+                icon={<CheckCircle className="w-8 h-8 text-primary" />}
+                title="Daily Action Log"
+                description="Did you do the work? Log your daily approaches, jobs, and revenue. Data over feelings."
+              />
+              <FeatureCard
+                icon={<Users className="w-8 h-8 text-primary" />}
+                title="Customer Pipeline"
+                description="Never let a lead go cold. Manage all your active leads, follow-ups, and repeat customers in one place."
+              />
+              <FeatureCard
+                icon={<DollarSign className="w-8 h-8 text-primary" />}
+                title="Simple Financials"
+                description="Know your numbers, no accounting degree required. Track monthly revenue, expenses, and profit margin."
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* --- CTA Section --- */}
+        <section className="w-full py-20 md:py-32 bg-white">
+          <div className="container mx-auto px-4 md:px-6 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              Stop Paying for Fluff.
+            </h2>
+            <p className="mt-4 max-w-lg mx-auto text-lg text-secondary">
+              Get the tools you actually need to build your business from $0 to
+              LLC.
+            </p>
+            <div className="mt-8">
+              <SignUpButton mode="modal">
+                <Button size="lg" className="bg-primary hover:bg-primary/90">
+                  Start Tracking Today
+                </Button>
+              </SignUpButton>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* --- Footer --- */}
+      <footer className="w-full py-8 bg-muted border-t">
+        <div className="container mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between">
+          <p className="text-sm text-secondary">
+            © {new Date().getFullYear()} No-BS Business Tracker. All rights
+            reserved.
+          </p>
+          <p className="text-sm text-primary font-medium">
+            No Gurus, Just Grit.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </footer>
+    </div>
+  );
+}
+
+/**
+ * Feature Card Sub-component (RSC)
+ */
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md">
+      <div className="mb-4">{icon}</div>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-secondary">{description}</p>
     </div>
   );
 }
