@@ -212,21 +212,32 @@ function ToolsCard({ tools }: { tools: Doc<"userTools">[] }) {
     );
 }
 
-// --- Subscription Card ---
+/**
+ * Subscription Card Sub-component (RSC)
+ * 
+ * @returns A React component that displays the user's current subscription plan
+ * and allows them to manage their subscription
+ */
 function ManageSubscriptionCard() {
-    const { clerk } = useClerk();
-    const { user } = useUser();
-    const status = useQuery(api.billing.getSubscriptionStatus);
+    const clerk = useClerk(); // Check if Clerk is loaded
+    const { user } = useUser(); // Get the authenticated user
+    const status = useQuery(api.billing.getSubscriptionStatus); // Get the user's subscription status
+    const plan = status?.plan ?? "free"; // Get the user's current plan
 
-    const plan = status?.plan ?? "free";
-
+    /**
+     * Handle the manage subscription button click
+     * 
+     * @returns A promise that resolves when the subscription portal is opened
+     */
     const handleManageSubscription = async () => {
-        if (!clerk || !user) return;
+        if (!clerk || !user) return; // Check if Clerk and user are loaded
+
         try {
-            // FIX: Completed this function
+            // Create a subscription portal for the user
             const portalUrl = await clerk.billing.createSubscriptionPortal({
                 returnUrl: window.location.href,
             });
+            // Open the subscription portal
             window.location.href = portalUrl;
         } catch (err) {
             console.error("Failed to create subscription portal:", err);
@@ -252,33 +263,52 @@ function ManageSubscriptionCard() {
             </CardContent>
         </Card>
     );
-}
 
-// --- Main Settings Page ---
-function SettingsPage() {
-    const businessInfo = useQuery(api.business.getBusinessInfo);
-    const goals = useQuery(api.business.getGoals);
-    const tools = useQuery(api.business.getTools);
+/**
+ * The main settings page component.
+ *
+ * @returns A React component that renders the settings page.
+ */
+ */
+    // --- Main Settings Page ---
+    function SettingsPage() {
+        const businessInfo = useQuery(api.business.getBusinessInfo);
+        const goals = useQuery(api.business.getGoals);
+        const tools = useQuery(api.business.getTools);
 
-    if (!businessInfo || !goals || !tools) {
-        return <div>Loading settings...</div>; // TODO: Skeleton
+        // If any of the queries are still loading, render a skeleton
+        if (!businessInfo || !goals || !tools) {
+            return (
+                <div className="space-y-8">
+                    <Skeleton className="h-12 w-64" />
+                    <Selection className="h-10 w-full" />
+                </div>
+            );
+
+            return ( 
+                <div className="space-y-8">
+                    <h1 className="text-3xl font-bold">Settings</h1>
+                    <GoalsCard goals={goals} />
+                    <ToolsCard tools={tools} />
+                    {/* Render the business info form with the default values from the query */}
+                </div>
+            {/* Render the goals card with the goals data from the query */ }
+    );
+            {/* Render the tools card with the tools data from the query */ }
+        }
     }
 
-    return (
-        <div className="space-y-8">
-            <h1 className="text-3xl font-bold">Settings</h1>
-            <ManageSubscriptionCard />
-            <BusinessInfoForm defaultValues={businessInfo} />
-            <GoalsCard goals={goals} />
-            <ToolsCard tools={tools} />
-        </div>
-    );
-}
+    /**
+     * A higher-order component that wraps the SettingsPage component in a Suspense component.
+     * It renders a loading message while the SettingsPage component is loading.
+     * 
+     * @returns A React component that wraps the SettingsPage component in a Suspense component.
+     */
 
-export default function SettingsPageWrapper() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <SettingsPage />
-        </Suspense>
-    );
-}
+    export default function SettingsPageWrapper() {
+        return (
+            <Suspense fallback={<div>Loading...</div>}>
+                <SettingsPage />
+            </Suspense>
+        );
+    }

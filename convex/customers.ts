@@ -59,7 +59,12 @@ export const addLead = mutation({
         serviceInterest: v.string(),
         source: v.string(),
         dateAdded: v.string(), // YYYY-MM-DD
-        status: v.string(),
+        status: v.union(
+            v.literal("New"),
+            v.literal("Contacted"),
+            v.literal("Interested"),
+            v.literal("Lost")
+        ),
         nextAction: v.string(),
     },
     handler: async (ctx, args) => {
@@ -113,8 +118,71 @@ export const addCustomer = mutation({
     },
 });
 
-// TODO: Add Update/Delete mutations for all three tables,
-// using the `getDocOrThrow` helper for auth checks.
+export const updateLead = mutation({
+    args: {
+        id: v.id("leads"),
+        name: v.string(),
+        contact: v.string(),
+        serviceInterest: v.string(),
+        source: v.string(),
+        dateAdded: v.string(),
+        status: v.union(
+            v.literal("New"),
+            v.literal("Contacted"),
+            v.literal("Interested"),
+            v.literal("Lost")
+        ),
+        nextAction: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        await getDocOrThrow(ctx, args.id, identity.subject);
+        const { id, ...updateData } = args;
+        await ctx.db.patch(id, updateData);
+    },
+});
+
+export const updateFollowUp = mutation({
+    args: {
+        id: v.id("followUps"),
+        customerName: v.string(),
+        lastContact: v.string(),
+        reason: v.string(),
+        followUpDate: v.string(),
+        notes: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        await getDocOrThrow(ctx, args.id, identity.subject);
+        const { id, ...updateData } = args;
+        await ctx.db.patch(id, updateData);
+    },
+});
+
+export const updateCustomer = mutation({
+    args: {
+        id: v.id("customers"),
+        name: v.string(),
+        contact: v.string(),
+        firstJobDate: v.string(),
+        lastJobDate: v.string(),
+        totalJobs: v.number(),
+        totalRevenue: v.number(),
+        referralsGiven: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        await getDocOrThrow(ctx, args.id, identity.subject);
+        const { id, ...updateData } = args;
+        await ctx.db.patch(id, updateData);
+    },
+});
 
 export const deleteLead = mutation({
     args: { id: v.id("leads") },
@@ -122,13 +190,7 @@ export const deleteLead = mutation({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Not authenticated");
 
-        const lead = await ctx.db.get(args.id);
-        if (!lead) throw new Error("Lead not found");
-
-        if (lead.userId !== identity.subject) {
-            throw new Error("Unauthorized");
-        }
-
+        await getDocOrThrow(ctx, args.id, identity.subject);
         await ctx.db.delete(args.id);
     },
 });

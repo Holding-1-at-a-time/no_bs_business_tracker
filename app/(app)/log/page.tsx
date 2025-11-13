@@ -1,19 +1,21 @@
 // file: app/(app)/log/page.tsx
 "use client";
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useState, useMemo } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Doc, Id } from "../../../convex/_generated/dataModel";
+import { useMutation, useQuery } from "convex/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
+import { api } from "../../../convex/_generated/api";
+import { Doc, Id } from "../../../convex/_generated/dataModel";
 
+import { AddFormDialog, EditFormDialog } from "@/components/form-dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Form,
     FormControl,
@@ -22,8 +24,14 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import {
     Table,
     TableBody,
@@ -32,17 +40,9 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { PlusCircle, Edit } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
-import { AddFormDialog, EditFormDialog } from "@/components/form-dialog";
+import { Edit, PlusCircle } from "lucide-react";
 
 const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-US", {
@@ -102,7 +102,7 @@ type JobFormValues = z.infer<typeof jobSchema>;
     
         const selectedDate = useMemo(() => {
             const dateParam = searchParams.get("date");
-            return dateParam ? dateParam : getToday();
+            return dateParam || getToday();
         }, [searchParams]);
     
         const onDateSelect = (date: Date | undefined) => {
@@ -184,9 +184,8 @@ type JobFormValues = z.infer<typeof jobSchema>;
                                 <CardTitle>Customer Outreach Tracker</CardTitle>
                                 <AddFormDialog
                                     schema={outreachSchema}
-                                    onSubmit={async (values) => await addOutreach(values)}
-                                    defaultValues={{
-                                        dailyLogId: log._id,
+                                    onSubmit={async (values) => { await addOutreach({ ...values, dailyLogId: log._id }); }}
+                                    defaultValues={{ // dailyLogId is added in onSubmit, not part of the form values
                                         time: format(new Date(), "HH:mm"),
                                         method: "", person: "", response: "", followUpNeeded: false,
                                     }}
@@ -216,7 +215,7 @@ type JobFormValues = z.infer<typeof jobSchema>;
                                             <TableCell>
                                                 <EditFormDialog
                                                     schema={outreachSchema}
-                                                    onSubmit={async (values) => await updateOutreach({ id: o._id, ...values })}
+                                                    onSubmit={async (values) => { await updateOutreach({ id: o._id, ...values }); }}
                                                     defaultValues={o}
                                                     title="Edit Outreach Entry"
                                                     successMessage="Outreach updated!"
@@ -246,9 +245,8 @@ type JobFormValues = z.infer<typeof jobSchema>;
                                 <CardTitle>Jobs Completed Today</CardTitle>
                                 <AddFormDialog
                                     schema={jobSchema}
-                                    onSubmit={async (values) => await addCompletedJob(values)}
-                                    defaultValues={{
-                                        dailyLogId: log._id,
+                                    onSubmit={async (values) => { await addCompletedJob({ ...values, dailyLogId: log._id }); }}
+                                    defaultValues={{ // dailyLogId is added in onSubmit, not part of the form values
                                         customer: "", service: "", amountCharged: 0, isPaid: false, referralAsked: false, notes: "",
                                     }}
                                     title="Add Completed Job"
@@ -277,7 +275,7 @@ type JobFormValues = z.infer<typeof jobSchema>;
                                             <TableCell>
                                                 <EditFormDialog
                                                     schema={jobSchema}
-                                                    onSubmit={async (values) => await updateCompletedJob({ id: j._id, ...values })}
+                                                    onSubmit={async (values) => { await updateCompletedJob({ id: j._id, ...values }); }}
                                                     defaultValues={j}
                                                     title="Edit Job"
                                                     successMessage="Job updated!"
@@ -306,7 +304,7 @@ type JobFormValues = z.infer<typeof jobSchema>;
                         <CardHeader><CardTitle>Daily Money</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                             <p className="text-lg">Revenue Today: <span className="font-bold text-green-600">{formatCurrency(log.revenueToday)}</span> (from paid jobs)</p>
-                            <Form {...useForm<ExpenseFormValues>({ resolver: zodResolver(expenseSchema), defaultValues: { expenses: log.expensesToday } })}> 
+                            <Form {...useForm<ExpenseFormValues>({ resolver: zodResolver(expenseSchema), defaultValues: { expenses: log.expensesToday } })}>
                                 <form
                                     onSubmit={(e) => {
                                         e.preventDefault();

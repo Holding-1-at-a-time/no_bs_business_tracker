@@ -23,8 +23,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
-// Helper to format currency
+/**
+ * Helper to format currency
+ *
+ * @param {number} amount - The amount to be formatted
+ * @returns {string} - The formatted amount
+ */
 const formatCurrency = (amount: number) => {
+    // Format the amount as a US dollar
     return new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
@@ -51,10 +57,9 @@ function GoalsCard({
 
     // Memoize sorted goals to avoid re-sorting on every render
     const sortedGoals = useMemo(
-        () => goals.sort((a, b) => (a.isAchieved ? 1 : -1)),
+        () => [...goals].sort((a, b) => (a.isAchieved ? 1 : -1)),
         [goals]
     );
-
     return (
         <Card className={className}>
             <CardHeader>
@@ -168,15 +173,9 @@ function MonthlyGrowthChart({
 function DashboardPage() {
     const { user } = useUser();
 
-    // Memoize date calculations to avoid recomputing on every render
-    const { startDate, endDate } = useMemo(() => {
-        const today = new Date();
-        return {
-            startDate: format(startOfWeek(today, { weekStartsOn: 1 }), "yyyy-MM-dd"),
-            endDate: format(today, "yyyy-MM-dd"),
-        };
-    }, []); // Empty deps - recalculate only on mount
-
+    const today = new Date();
+    const startDate = format(startOfWeek(today, { weekStartsOn: 1 }), "yyyy-MM-dd");
+    const endDate = format(today, "yyyy-MM-dd");
     const dashboardData = useQuery(api.dashboard.getDashboardData, {
         startDate,
         endDate,

@@ -72,7 +72,7 @@ function ScriptsSection({
     const addScript = useMutation(api.scripts.addScript);
     const isAtLimit = plan !== "pro" && scripts.length >= 3;
 
-    const handleAdd = async (values: ScriptFormValues) {
+    const handleAdd = async (values: ScriptFormValues) => {
         try {
             await addScript(values);
             setAddOpen(false);
@@ -123,7 +123,7 @@ function ScriptCard({ script }: { script: Doc<"scripts"> }) {
     const updateScript = useMutation(api.scripts.updateScript);
     const deleteScript = useMutation(api.scripts.deleteScript);
 
-    const handleUpdate = async (values: ScriptFormValues) {
+    const handleUpdate = async (values: ScriptFormValues) => {
         try {
             await updateScript({ scriptId: script._id, ...values });
             setEditOpen(false);
@@ -166,7 +166,7 @@ function ScriptCard({ script }: { script: Doc<"scripts"> }) {
                         <ScriptForm onSubmit={handleUpdate} defaultValues={script} />
                     </DialogContent>
                 </Dialog>
-                <Button variant="destructive-outline" size="sm" onClick={handleDelete}>
+                <Button variant="destructive" size="sm" onClick={handleDelete}>
                     <Trash className="mr-2 h-4 w-4" /> Delete
                 </Button>
             </CardFooter>
@@ -231,7 +231,7 @@ function HandlersSection({
     const addHandler = useMutation(api.scripts.addObjectionHandler);
     const isAtLimit = plan !== "pro" && handlers.length >= 5;
 
-    const handleAdd = async (values: HandlerFormValues) {
+    const handleAdd = async (values: HandlerFormValues) => {
         try {
             await addHandler(values);
             setAddOpen(false);
@@ -292,7 +292,7 @@ function HandlerRow({ handler }: { handler: Doc<"objectionHandlers"> }) {
     const updateHandler = useMutation(api.scripts.updateObjectionHandler);
     const deleteHandler = useMutation(api.scripts.deleteObjectionHandler);
 
-    const handleUpdate = async (values: HandlerFormValues) {
+    const handleUpdate = async (values: HandlerFormValues) => {
         try {
             await updateHandler({ handlerId: handler._id, ...values });
             setEditOpen(false);
@@ -327,7 +327,7 @@ function HandlerRow({ handler }: { handler: Doc<"objectionHandlers"> }) {
                         <HandlerForm onSubmit={handleUpdate} defaultValues={handler} />
                     </DialogContent>
                 </Dialog>
-                <Button variant="destructive-outline" size="sm" onClick={handleDelete}>
+                <Button variant="outline" size="sm" onClick={handleDelete}>
                     <Trash className="h-4 w-4" />
                 </Button>
             </TableCell>

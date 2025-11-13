@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
- * Error boundary component for handling runtime errors gracefully
+ * Error boundary component for handling runtime errors
  * Place this as error.tsx in any app directory to catch errors in that route segment
+ * @param {Object} props - props passed to the component
+ * @param {Error} props.error - error object caught by boundary
+ * @param {Function} props.reset - callback function to reset error state
  */
 export function ErrorBoundary({
     error,
@@ -33,10 +36,18 @@ export function ErrorBoundary({
                     {process.env.NODE_ENV === "development" && (
                         <div className="rounded-md bg-muted p-4">
                             <p className="text-sm font-mono text-muted-foreground break-words">
-                                {error.message}
+                                {/*
+                                    Show error message when in development mode
+                                    Error message can be useful for debugging
+                                    */
+                                    error.message}
                             </p>
                             {error.digest && (
                                 <p className="mt-2 text-xs text-muted-foreground">
+                                    {/*
+                                        Show error digest when in development mode
+                                        Error digest can be useful for debugging
+                                    */}
                                     Error ID: {error.digest}
                                 </p>
                             )}
@@ -49,7 +60,7 @@ export function ErrorBoundary({
                     </Button>
                     <Button
                         variant="outline"
-                        onClick={() => (window.location.href = "/")}
+                        onClick={() => window.location.assign("/")}
                         className="flex-1"
                     >
                         Go home

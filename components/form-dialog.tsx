@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, type ComponentPropsWithoutRef } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -45,7 +45,7 @@ export function FormDialog<TSchema extends z.ZodType>({
     onSubmit,
     successMessage,
     triggerButton,
-    formFields,
+    formFields, // Pass the form object to the render function
     submitLabel = "Save",
     isEdit = false,
     onOpenChange,
@@ -63,7 +63,7 @@ export function FormDialog<TSchema extends z.ZodType>({
     /** Success toast message */
     successMessage?: string;
     /** Trigger button element */
-    triggerButton: React.ReactNode;
+    triggerButton: React.ReactElement<ComponentPropsWithoutRef<"button">>;
     /** Render function for form fields */
     formFields: (form: UseFormReturn<z.infer<TSchema>>) => React.ReactNode;
     /** Custom submit button label */
@@ -79,6 +79,10 @@ export function FormDialog<TSchema extends z.ZodType>({
         resolver: zodResolver(schema),
         defaultValues,
     });
+
+    useEffect(() => {
+        form.reset(defaultValues);
+    }, [defaultValues]);
 
     const handleOpenChange = (newOpen: boolean) => {
         setOpen(newOpen);
@@ -99,7 +103,7 @@ export function FormDialog<TSchema extends z.ZodType>({
             }
 
             // Reset form for add dialogs, keep values for edit dialogs
-            if (!isEdit) {
+            if (!isEdit) { 
                 form.reset(defaultValues);
             }
 

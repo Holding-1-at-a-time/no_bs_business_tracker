@@ -72,7 +72,10 @@ async function validateClerkRequest(
     try {
         return wh.verify(payloadString, svixHeaders) as any;
     } catch (err) {
-        console.error("Clerk webhook validation failed:", err);
+        // In production, use proper logging service
+        if (process.env.NODE_ENV !== 'production') {
+            console.error("Clerk webhook validation failed:", err);
+        }
         return null;
     }
 }

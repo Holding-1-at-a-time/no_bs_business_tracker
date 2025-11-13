@@ -51,7 +51,10 @@ export const updateSubscription = internalMutation({
             .unique();
 
         if (!user) {
-            console.error(`User not found for clerkId: ${clerkId}`);
+            // In production, use proper logging service
+            if (process.env.NODE_ENV !== 'production') {
+                console.error(`User not found for clerkId: ${clerkId}`);
+            }
             return;
         }
 

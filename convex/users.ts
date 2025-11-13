@@ -31,7 +31,7 @@ export const createUser = internalMutation({
             name: args.name,
             email: args.email,
             plan: "free",
-            tokenIdentifier: ""
+            tokenIdentifier: args.clerkId // FIX: Use clerkId as tokenIdentifier for proper auth
         });
     },
 });
@@ -79,7 +79,7 @@ export const createUserWithData = internalMutation({
             name: args.name,
             email: args.email,
             plan: "free",
-            tokenIdentifier: ""
+            tokenIdentifier: args.clerkId // FIX: Use clerkId as tokenIdentifier for proper auth
         });
 
         // Seed goals atomically
