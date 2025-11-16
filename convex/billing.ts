@@ -98,3 +98,29 @@ export const cancelSubscription = internalMutation({
         });
     },
 });
+
+export const createSubscriptionPortal = internalMutation({
+    args: {
+        clerkId: v.string(),
+        returnUrl: v.string(),
+    },
+    handler: async (ctx, { clerkId, returnUrl }) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity || identity.subject !== clerkId) {
+            throw new Error("Unauthorized");
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+            .unique();
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        return await clerkId.billing.createSubscriptionPortal({
+                    returnUrl,
+                });
+    },
+}); 
